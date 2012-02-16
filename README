@@ -1,0 +1,5 @@
+Compile with:
+
+$ gcc -W -Wall -Wextra -ansi -pedantic -o hdump hdump.c
+
+You can also use MinGW or Cygwin to compile this tool for Windows systems.
