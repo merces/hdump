@@ -1,5 +1,10 @@
+hdump 2.0
+
+Fast and portable hexadecimal dumpe for binary files
+written in ANSI C.
+
 Compile with:
 
-$ gcc -W -Wall -Wextra -ansi -pedantic -o hdump hdump.c
+$ make
 
 You can also use MinGW or Cygwin to compile this tool for Windows systems.

@@ -118,6 +118,6 @@ int main(int argc, char * argv[])
 		if (nbytes && end >= nbytes) break;
 	} while (lidos);
 
-	(void) fclose(arq);
+	fclose(arq);
 	return 0;
 }
