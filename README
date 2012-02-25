@@ -1,10 +1,12 @@
 hdump 2.0
 
-Fast and portable hexadecimal dumpe for binary files
-written in ANSI C.
+Fast, simple and portable hexadecimal/ASCII
+dumper for binary files, written in ANSI C.
 
 Compile with:
+	$ make
 
-$ make
+Usage:
+	./hdump [-b START_BYTE] [-n NUMBER_OF_BYTES] <file>
 
 You can also use MinGW or Cygwin to compile this tool for Windows systems.
