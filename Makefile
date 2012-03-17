@@ -1,5 +1,5 @@
 all:
-	gcc -O2 -Wall -Wextra -ansi -pedantic -o hdump hdump.c
+	gcc -O2 -W -Wall -Wextra -ansi -pedantic -o hdump hdump.c
 
 clean:
 	rm -f hdump

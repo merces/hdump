@@ -1,12 +1,31 @@
-hdump 2.0
+hdump 2.1
 
 Fast, simple and portable hexadecimal/ASCII
 dumper for binary files, written in ANSI C.
 
-Compile with:
-	$ make
+BUID
+ $ make
 
-Usage:
-	./hdump [-b START_BYTE] [-n NUMBER_OF_BYTES] <file>
+USAGE
+ $ hdump [-s skip] [-n length] file
+
+OPTIONS
+ -s   : number of bytes to be skipped a.k.a. start byte.
+ -n   : length of bytes to read a.k.a. minimum number of bytes to print.
+ -v   : show version and author banner.
+ -h   : show usage.
+
+Prefixing number with '0x' make hdump use it as hexadecimal.
+
+EXAMPLES
+
+ Print only the first 16 bytes of file /bin/ls:
+  $ hdump -n 16 /bin/ls
+  $ hdump -n 0x10 /bin/ls
+
+ Start at byte 0xff and print 32 bytes after:
+  $ hdump -s 0xff -n 32 /bin/ls
+
+CHANGES
 
 You can also use MinGW or Cygwin to compile this tool for Windows systems.

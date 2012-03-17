@@ -1,7 +1,7 @@
 /*
 	hdump - hexa/ascii file dumper
 
-	Copyright (C) 2010 - 2011 Fernando Mercês
+	Copyright (C) 2010 - 2012 Fernando Mercês
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -25,19 +25,20 @@
 #include <getopt.h>
 
 #define BANNER \
-puts("hdump 2.0\nwritten by Fernando Mercês <fernando@mentebinaria.com.br>");
+puts("hdump 2.1\nwritten by Fernando Mercês <fernando@mentebinaria.com.br>");
 
 #define USAGE \
-printf("Usage:\n\thdump [-b START_BYTE] [-n NUMBER_OF_BYTES] <file>\n");
+printf("Usage:\n\thdump [-s skip] [-n length] file\n");
 
-/* Define o numero de colunas na exibicao */
+/* define o numero de colunas na exibição */
 #define COLS 16
 
 unsigned int parse_num(char *s)
 {
 	unsigned int val;
 
-	if (strstr(s, "0x") != NULL)
+	/* interpreta como hexa se for prefixado com 0x */
+	if (strstr(s, "0x"))
 		sscanf(s+2, "%x", &val);
 	else
 		val = atoi(s);
@@ -45,16 +46,16 @@ unsigned int parse_num(char *s)
 	return val;
 }
 
-int main(int argc, char * argv[])
+int main(int argc, char *argv[])
 {
-	FILE *arq;
-	unsigned char v[COLS];
+	FILE *file;
+	unsigned char buff[COLS];
 	register unsigned int i;
-	unsigned int lidos, end=0;
-	char ascii[COLS+1] = {'\0'};
-	unsigned int byte=0;
-	unsigned int nbytes=0;
+	unsigned int read, skip, length, address;
+	unsigned char ascii[COLS+1] = {'\0'};
 	int c;
+
+	read = skip = length = address = 0;
 
 	if (argc < 2)
 	{
@@ -62,62 +63,63 @@ int main(int argc, char * argv[])
 		return 1;
 	}
 
-	while ((c = getopt (argc, argv, "b:n:vh")) != -1)
+	while ((c = getopt (argc, argv, "s:n:vh")) != -1)
 	{
 		switch (c)
 		{
-			case 'b':
-				byte = parse_num(optarg); break;
+			case 's':
+				skip = parse_num(optarg); break;
 			case 'n':
-				nbytes = atoi(optarg); break;
+				length = parse_num(optarg); break;
 			case 'v':
-				BANNER return 0;
+				BANNER; return 0;
 			case 'h':
-				USAGE	return 0;
+				USAGE; return 0;
 			default:
-				USAGE	return 1;
+				USAGE; return 1;
 		}
 	}
 
-	if ( (arq = fopen(argv[argc-1], "rb")) == NULL )
+	if ((file = fopen(argv[argc-1], "rb")) == NULL)
 	{
 		fprintf(stderr, "file not found or without read access.\n");
 		return 1;
 	}
 
-	/* anda 'byte' posicoes para frente (-b) */
-	fseek(arq, byte, SEEK_SET);
+	/* anda 'skip' posicoes para frente (-s) */
+	fseek(file, skip, SEEK_SET);
 
 	do
 	{
-		lidos = (int) fread(v, sizeof(char), COLS, arq);
-		for (i=0; i<lidos; i++)
+		read = (int) fread(buff, sizeof(char), COLS, file);
+		for (i=0; i<read; i++)
 		{
 			/* imprime o offset */
 			if (!i)
-				printf("%08x  ", (unsigned int) i+end+byte);
+				printf("%08x  ", (unsigned int) i+address+skip);
 
-			/* testa se o byte e imprimivel e o coloca no vetor ascii. Depois
-			exibe o byte hexa seguido de um ou dois espacos (se estiver na metade de COLS) */
-			ascii[i] = isprint(v[i]) ? v[i] : '.';
-			printf("%02x%*c", (unsigned int)v[i], (i+1 == COLS/2) ? 2 : 1, ' ');
+			/* testa se o byte e imprimível e o coloca no vetor ascii */
+			ascii[i] = isprint(buff[i]) ? buff[i] : '.';
 
-			/* define o fim do array ascii */
-			if (lidos < COLS)
-				ascii[lidos] = '\0';
+			/* imprime os bytes separados por espaço */
+			printf("%02x%*c", (unsigned int) buff[i], (i+1 == COLS/2) ? 2 : 1, ' ');
 
-			/* necessario para imprimir os ASCII na ultima iteracao */
-			if (i == lidos - 1)
+			/* define o fim do array ascii (sera usado como string) */
+			if (read < COLS)
+				ascii[read] = '\0';
+
+			/* imprime os caracteres ascii */
+			if (i == read-1)
 				printf(" |%s|\n", ascii);
 		}
 		/* atualiza o numero de endereços lidos */
-		/*printf("\n");*/
-		end += lidos;
+		address += read;
 
-		/* se nbytes esta setado e end ja ultrapassou, para */
-		if (nbytes && end >= nbytes) break;
-	} while (lidos);
+		/* se a opcao -n foi utilizada, para quando atingir */
+		if (length && address >= length)
+			break;
+	} while (read);
 
-	fclose(arq);
+	fclose(file);
 	return 0;
 }
