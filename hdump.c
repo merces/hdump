@@ -1,5 +1,5 @@
 /*
-	hdump - hexa/ascii file dumper
+	hdump - simple hexa/ascii file dumper
 
 	Copyright (C) 2010 - 2012 Fernando Mercês
 
@@ -25,92 +25,89 @@
 #include <getopt.h>
 
 #define BANNER \
-puts("hdump 2.1\nwritten by Fernando Mercês <fernando@mentebinaria.com.br>");
+puts("hdump 2.2\nwritten by Fernando Mercês <fernando@mentebinaria.com.br>")
 
 #define USAGE \
-printf("Usage:\n\thdump [-s skip] [-n length] file\n");
+fatal("Usage:\n\thdump [-c columns] [-s skip] [-n length] file\n")
 
-/* define o numero de colunas na exibição */
-#define COLS 16
-
-unsigned int parse_num(char *s)
+void fatal(char *msg)
 {
-	unsigned int val;
-
-	/* interpreta como hexa se for prefixado com 0x */
-	if (strstr(s, "0x"))
-		sscanf(s+2, "%x", &val);
-	else
-		val = atoi(s);
-
-	return val;
+	fprintf(stderr, msg);
+	exit(1);
 }
 
 int main(int argc, char *argv[])
 {
 	FILE *file;
-	unsigned char buff[COLS];
+	unsigned char *buff, *ascii;
 	register unsigned int i;
-	unsigned int read, skip, length, address;
-	unsigned char ascii[COLS+1] = {'\0'};
+	unsigned int cols;
+	unsigned long int read, skip, length, address;
 	int c;
 
-	read = skip = length = address = 0;
+	read = skip = length = address = cols = 0;
 
 	if (argc < 2)
-	{
-		USAGE
-		return 1;
-	}
+		USAGE;
 
-	while ((c = getopt (argc, argv, "s:n:vh")) != -1)
+	while ((c = getopt (argc, argv, "c:s:n:vh")) != -1)
 	{
 		switch (c)
 		{
+			case 'c':
+				cols = (unsigned int) strtoul(optarg, NULL, 0); break;
 			case 's':
-				skip = parse_num(optarg); break;
+				skip = strtoul(optarg, NULL, 0); break;
 			case 'n':
-				length = parse_num(optarg); break;
+				length = strtoul(optarg, NULL, 0); break;
 			case 'v':
-				BANNER; return 0;
+				BANNER; exit(0);
 			case 'h':
-				USAGE; return 0;
+				USAGE;
 			default:
-				USAGE; return 1;
+				USAGE;
 		}
 	}
 
-	if ((file = fopen(argv[argc-1], "rb")) == NULL)
-	{
-		fprintf(stderr, "file not found or without read access.\n");
-		return 1;
-	}
+	if (!cols)
+		cols = 16;
+
+	buff = (unsigned char *) malloc(sizeof(unsigned char) * cols);
+	ascii = (unsigned char *) malloc(sizeof(unsigned char) * cols + 1);
+	memset(ascii, 0, sizeof(ascii));
+
+	if (!buff)
+		fatal("not enough memory\n");
+
+	if (!(file = fopen(argv[argc-1], "rb")))
+		fatal("file not found or not readable\n");
 
 	/* anda 'skip' posicoes para frente (-s) */
-	fseek(file, skip, SEEK_SET);
+	if (fseek(file, skip, SEEK_SET))
+		fatal("unable to seek through file\n");
 
 	do
 	{
-		read = (int) fread(buff, sizeof(char), COLS, file);
+		read = (int) fread(buff, sizeof(char), cols, file);
 		for (i=0; i<read; i++)
 		{
 			/* imprime o offset */
 			if (!i)
-				printf("%08x  ", (unsigned int) i+address+skip);
+				printf("%08lx  ", i+address+skip);
 
 			/* testa se o byte e imprimível e o coloca no vetor ascii */
-			ascii[i] = isprint(buff[i]) ? buff[i] : '.';
+			*(ascii+i) = isprint(*(buff+i)) ? *(buff+i) : '.';
 
 			/* imprime os bytes separados por espaço */
-			printf("%02x%*c", (unsigned int) buff[i], (i+1 == COLS/2) ? 2 : 1, ' ');
+			printf("%02x%*c", (unsigned int) *(buff+i), (i+1 == cols/2) ? 2 : 1, ' ');
 
 			/* define o fim do array ascii (sera usado como string) */
-			if (read < COLS)
-				ascii[read] = '\0';
+			if (read < cols)
+				*(ascii+read) = '\0';
 
 			/* imprime os caracteres ascii */
 			if (i == read-1)
-				printf(" |%s|\n", ascii);
+				printf("%*c|%s|\n", (int) (read < cols ? (cols-read)*3 + (!(cols % 2) ? 1 : 2) : 1), ' ', ascii);
 		}
 		/* atualiza o numero de endereços lidos */
 		address += read;
@@ -120,6 +117,8 @@ int main(int argc, char *argv[])
 			break;
 	} while (read);
 
+	free(buff);
+	free(ascii);
 	fclose(file);
 	return 0;
 }
