@@ -73,11 +73,12 @@ int main(int argc, char *argv[])
 		cols = 16;
 
 	buff = (unsigned char *) malloc(sizeof(unsigned char) * cols);
-	ascii = (unsigned char *) malloc(sizeof(unsigned char) * cols + 1);
-	memset(ascii, 0, sizeof(ascii));
+	ascii = (unsigned char *) malloc((sizeof(unsigned char) * cols)+1);
 
-	if (!buff)
+	if (!buff || !ascii)
 		fatal("not enough memory\n");
+
+	memset(ascii, 0, sizeof(ascii));
 
 	if (!(file = fopen(argv[argc-1], "rb")))
 		fatal("file not found or not readable\n");
@@ -102,8 +103,7 @@ int main(int argc, char *argv[])
 			printf("%02x%*c", (unsigned int) *(buff+i), (i+1 == cols/2) ? 2 : 1, ' ');
 
 			/* define o fim do array ascii (sera usado como string) */
-			if (read < cols)
-				*(ascii+read) = '\0';
+			*(ascii+read) = '\0';
 
 			/* imprime os caracteres ascii */
 			if (i == read-1)
