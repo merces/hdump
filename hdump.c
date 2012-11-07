@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
 	if (!buff || !ascii)
 		fatal("not enough memory\n");
 
-	memset(ascii, 0, sizeof(ascii));
+	memset(ascii, 0, (sizeof(unsigned char) * cols)+1);
 
 	if (!(file = fopen(argv[argc-1], "rb")))
 		fatal("file not found or not readable\n");
