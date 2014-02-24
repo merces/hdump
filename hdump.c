@@ -1,7 +1,7 @@
 /*
 	hdump - simple hexa/ascii file dumper
 
-	Copyright (C) 2010 - 2012 Fernando Mercês
+	Copyright (C) 2010 - 2014 Fernando Mercês
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -25,12 +25,12 @@
 #include <getopt.h>
 
 #define BANNER \
-puts("hdump 2.2\nwritten by Fernando Mercês <fernando@mentebinaria.com.br>")
+puts("hdump 2.2 by Fernando Mercês")
 
 #define USAGE \
 fatal("Usage:\n\thdump [-c columns] [-s skip] [-n length] file\n")
 
-void fatal(char *msg)
+void fatal(const char *msg)
 {
 	fprintf(stderr, msg);
 	exit(1);
