@@ -3,10 +3,10 @@ hdump 2.2
 Fast, simple and portable hexadecimal/ASCII
 dumper for binary files, written in ANSI C.
 
-BUID
+1. Bulding
  $ make
 
-USAGE
+2. Usage
  $ hdump [-c columns] [-s skip] [-n length] file
 
 OPTIONS
@@ -18,9 +18,9 @@ OPTIONS
 
 Prefixing numbers with '0x' make hdump use it as hexadecimal.
 
-EXAMPLES
+3. Examples
 
- Print only the first 16 bytes of file /bin/ls:
+ Print the first 16 bytes of /bin/ls file:
   $ hdump -n 16 /bin/ls
   $ hdump -n 0x10 /bin/ls
 
