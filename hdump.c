@@ -21,19 +21,18 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <getopt.h>
 
 #define BANNER \
-puts("hdump 2.2 by Fernando Mercês")
+puts("hdump 2.3 by Fernando Mercês <fernando at mentebinaria.com.br>")
 
 #define USAGE \
-fatal("Usage:\n\thdump [-c columns] [-s skip] [-n length] file\n")
+fatal("Usage:\n\thdump [-c columns] [-s skip] [-n length] file")
 
 void fatal(const char *msg)
 {
-	fprintf(stderr, msg);
-	exit(1);
+	fprintf(stderr, "%s\n", msg);
+	exit(EXIT_FAILURE);
 }
 
 int main(int argc, char *argv[])
@@ -41,7 +40,7 @@ int main(int argc, char *argv[])
 	FILE *file;
 	unsigned char *buff, *ascii;
 	register unsigned int i;
-	unsigned int cols;
+	size_t cols;
 	unsigned long int read, skip, length, address;
 	int c;
 
@@ -55,9 +54,9 @@ int main(int argc, char *argv[])
 		switch (c)
 		{
 			case 'c':
-				cols = (unsigned int) strtoul(optarg, NULL, 0); break;
+				cols = (size_t) strtoul(optarg, NULL, 0); break;
 			case 's':
-				skip = strtoul(optarg, NULL, 0); break;
+				skip = (long) strtoul(optarg, NULL, 0); break;
 			case 'n':
 				length = strtoul(optarg, NULL, 0); break;
 			case 'v':
@@ -76,16 +75,16 @@ int main(int argc, char *argv[])
 	ascii = (unsigned char *) malloc((sizeof(unsigned char) * cols)+1);
 
 	if (!buff || !ascii)
-		fatal("not enough memory\n");
+		fatal("not enough memory");
 
 	memset(ascii, 0, (sizeof(unsigned char) * cols)+1);
 
 	if (!(file = fopen(argv[argc-1], "rb")))
-		fatal("file not found or not readable\n");
+		fatal("file not found or not readable");
 
 	/* anda 'skip' posicoes para frente (-s) */
 	if (fseek(file, skip, SEEK_SET))
-		fatal("unable to seek through file\n");
+		fatal("unable to seek through file");
 
 	do
 	{
@@ -113,7 +112,7 @@ int main(int argc, char *argv[])
 		address += read;
 
 		/* se a opcao -n foi utilizada, para quando atingir */
-		if (length && address >= length)
+		if (length && (address >= length))
 			break;
 	} while (read);
 
