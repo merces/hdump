@@ -7,7 +7,7 @@ Legend:
 ! Known issue / missing feature
 
 hdump 2.3 - April 8th, 2014
- - Compilation fails due misuse of fsprintf() function. Closes issue #2.
+ - Fixed compilation failure due misuse of fsprintf() function.
 
 hdump 2.2 - May 17th, 2012
  + Added -c option to set output columns.
