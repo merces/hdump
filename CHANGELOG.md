@@ -1,0 +1,19 @@
+hdump - simple hexa/ascii file dumper
+
+Legend:
++ Added feature
+* Improved/changed feature
+- Bug fixed
+! Known issue / missing feature
+
+hdump 2.3 - April 8th, 2014
+ - Compilation fails due misuse of fsprintf() function. Closes issue #2.
+
+hdump 2.2 - May 17th, 2012
+ + Added -c option to set output columns.
+
+hdump 2.1 - July 7th, 2012
+ + Support for hexadecimal numbers in -s and -n options.
+
+hdump 2.0 - February 25th, 2012
+   First public release.
