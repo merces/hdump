@@ -1,7 +1,7 @@
 /*
 	hdump - simple hexa/ascii file dumper
 
-	Copyright (C) 2010 - 2014 Fernando Mercês
+	Copyright (C) 2010 - 2015 Fernando Mercês
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #include <getopt.h>
 
 #define BANNER \
-puts("hdump 2.3 by Fernando Mercês <fernando at mentebinaria.com.br>")
+puts("hdump 2.3 by Fernando Mercês - mentebinaria.com.br")
 
 #define USAGE \
 fatal("Usage:\n\thdump [-c columns] [-s skip] [-n length] file")
@@ -41,10 +41,10 @@ int main(int argc, char *argv[])
 	unsigned char *buff, *ascii;
 	register unsigned int i;
 	size_t cols;
-	unsigned long int read, skip, length, address;
+	unsigned long int bread, skip, length, address;
 	int c;
 
-	read = skip = length = address = cols = 0;
+	bread = skip = length = address = cols = 0;
 
 	if (argc < 2)
 		USAGE;
@@ -82,14 +82,14 @@ int main(int argc, char *argv[])
 	if (!(file = fopen(argv[argc-1], "rb")))
 		fatal("file not found or not readable");
 
-	/* anda 'skip' posicoes para frente (-s) */
+	/* anda #skip posicoes para frente (-s) */
 	if (fseek(file, skip, SEEK_SET))
 		fatal("unable to seek through file");
 
 	do
 	{
-		read = (int) fread(buff, sizeof(char), cols, file);
-		for (i=0; i<read; i++)
+		bread = (int) fread(buff, sizeof(char), cols, file);
+		for (i=0; i<bread; i++)
 		{
 			/* imprime o offset */
 			if (!i)
@@ -102,19 +102,19 @@ int main(int argc, char *argv[])
 			printf("%02x%*c", (unsigned int) *(buff+i), (i+1 == cols/2) ? 2 : 1, ' ');
 
 			/* define o fim do array ascii (sera usado como string) */
-			*(ascii+read) = '\0';
+			*(ascii+bread) = '\0';
 
 			/* imprime os caracteres ascii */
-			if (i == read-1)
-				printf("%*c|%s|\n", (int) (read < cols ? (cols-read)*3 + (!(cols % 2) ? 1 : 2) : 1), ' ', ascii);
+			if (i == bread-1)
+				printf("%*c|%s|\n", (int) (bread < cols ? (cols-bread)*3 + (!(cols % 2) ? 1 : 2) : 1), ' ', ascii);
 		}
 		/* atualiza o numero de endereços lidos */
-		address += read;
+		address += bread;
 
-		/* se a opcao -n foi utilizada, para quando atingir */
+		/* se a opcao -n foi utilizada, para quando atingir #length */
 		if (length && (address >= length))
 			break;
-	} while (read);
+	} while (bread);
 
 	free(buff);
 	free(ascii);
