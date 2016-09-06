@@ -1,5 +1,5 @@
 all:
-	gcc -O2 -W -Wall -Wextra -ansi -pedantic -o hdump hdump.c
+	gcc -Wall -Wextra -ansi -pedantic -o hdump hdump.c
 
 install:
 	install -m 0755 hdump /usr/local/bin/hdump
