@@ -23,16 +23,31 @@
 #include <stdlib.h>
 #include <getopt.h>
 
-#define BANNER \
-puts("hdump 2.3 by Fernando Mercês - mentebinaria.com.br")
-
-#define USAGE \
-fatal("Usage:\n\thdump [-c columns] [-s skip] [-n length] file")
+#define VERSION "2.4"
+#define BANNER puts("hdump "VERSION" by Fernando Merces - mentebinaria.com.br")
+#define USAGE fatal("Usage:\n\thdump [-c columns] [-s skip] [-n length] file")
 
 void fatal(const char *msg)
 {
 	fprintf(stderr, "%s\n", msg);
 	exit(EXIT_FAILURE);
+}
+
+
+/* This function handles all the output space characters number calculation */
+int get_spaces(int bread, int cols)
+{
+	int spaces = 0;
+
+	if (bread < cols)
+	{
+		spaces = cols*3 - bread*3 + 1;
+
+		if (bread < (cols/2))
+			spaces += 1;
+	}
+
+	return spaces;
 }
 
 int main(int argc, char *argv[])
@@ -106,7 +121,7 @@ int main(int argc, char *argv[])
 
 			/* imprime os caracteres ascii */
 			if (i == bread-1)
-				printf("%*c|%s|\n", (int) (bread < cols ? (cols-bread)*3 + (!(cols % 2) ? 1 : 2) : 1), ' ', ascii);
+				printf("%*c|%s|\n", get_spaces(bread, cols), ' ', ascii);
 		}
 		/* atualiza o numero de endereços lidos */
 		address += bread;
