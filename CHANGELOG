@@ -1,4 +1,4 @@
-hdump - simple hexa/ascii file dumper
+hdump - The simple hexadecimal+ASCII dumper
 
 Legend:
 + Added feature
@@ -6,14 +6,17 @@ Legend:
 - Bug fixed
 ! Known issue / missing feature
 
+hdump 2.4 - ?
+ + Fixed wrong number of spaces in the last line output.
+
 hdump 2.3 - April 8th, 2014
- - Fixed compilation failure due misuse of fsprintf() function.
+ - Fixed compilation failure due misuse of fprintf() function.
 
 hdump 2.2 - May 17th, 2012
- + Added -c option to set output columns.
+ + Added -c option to set output columns number.
 
 hdump 2.1 - July 7th, 2012
- + Support for hexadecimal numbers in -s and -n options.
+ + Support for hexadecimal numbers with -s and -n options.
 
 hdump 2.0 - February 25th, 2012
    First public release.
