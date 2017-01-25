@@ -86,13 +86,11 @@ int main(int argc, char *argv[])
 	if (!cols)
 		cols = 16;
 
-	buff = (unsigned char *) malloc(sizeof(unsigned char) * cols);
-	ascii = (unsigned char *) malloc((sizeof(unsigned char) * cols)+1);
+	buff = (unsigned char *) calloc (1, sizeof(unsigned char) * cols);
+	ascii = (unsigned char *) calloc (1, (sizeof(unsigned char) * cols) + 1);
 
 	if (!buff || !ascii)
 		fatal("not enough memory");
-
-	memset(ascii, 0, (sizeof(unsigned char) * cols)+1);
 
 	if (!(file = fopen(argv[argc-1], "rb")))
 		fatal("file not found or not readable");
