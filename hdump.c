@@ -114,12 +114,15 @@ int main(int argc, char *argv[])
 			/* imprime os bytes separados por espaço */
 			printf("%02x%*c", (unsigned int) *(buff+i), (i+1 == cols/2) ? 2 : 1, ' ');
 
-			/* define o fim do array ascii (sera usado como string) */
-			*(ascii+bread) = '\0';
-
-			/* imprime os caracteres ascii */
-			if (i == bread-1)
+			/* 
+			 * define o final do array asciii (será usado como string)
+			 * imprime os caracteres ascii 
+			 */
+			if (i == bread-1) 
+			{
+			 	*(ascii+bread) = '\0';
 				printf("%*c|%s|\n", get_spaces(bread, cols), ' ', ascii);
+			}
 		}
 		/* atualiza o numero de endereços lidos */
 		address += bread;
