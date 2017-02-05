@@ -17,6 +17,10 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef __unix__
+#define _FILE_OFFSET_BITS 64
+#endif /*__unix__ */
+
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
@@ -89,6 +93,7 @@ int main(int argc, char *argv[])
 	buff = (unsigned char *) calloc (1, sizeof(unsigned char) * cols);
 	ascii = (unsigned char *) calloc (1, (sizeof(unsigned char) * cols) + 1);
 
+
 	if (!buff || !ascii)
 		fatal("not enough memory");
 
@@ -117,7 +122,7 @@ int main(int argc, char *argv[])
 			/* 
 			 * define o final do array asciii (será usado como string)
 			 * imprime os caracteres ascii 
-			 */
+			 * */
 			if (i == bread-1) 
 			{
 			 	*(ascii+bread) = '\0';
