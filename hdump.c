@@ -21,23 +21,72 @@
 #define _FILE_OFFSET_BITS 64
 
 #include <unistd.h>
+#include <sys/select.h>
+
+/**
+ * **@Nota:
+ * 	IN é definido aqui dessa forma, 
+ * para evitar o uso de #ifdefs pelo codigo
+ */
+#define IN 		"/dev/stdin"
+
+#else  /* WINDOWS */ 
+
+#define IN 		""
 
 #endif /*__unix__ */
 
+
+
 #include <stdio.h>
-#include <ctype.h>
-#include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+
+#include <ctype.h>
 #include <getopt.h>
 
 #define VERSION "2.4"
 #define BANNER puts("hdump "VERSION" by Fernando Merces - mentebinaria.com.br")
 #define USAGE fatal("Usage:\n\thdump [-c columns] [-s skip] [-n length] file")
 
+
 void fatal(const char *msg)
 {
 	fprintf(stderr, "%s\n", msg);
 	exit(EXIT_FAILURE);
+}
+
+/**
+ * **@Nota:
+ * 	Testa se há algo no buffer de entrada.
+ */
+bool
+available_input (void)
+{
+#ifdef __unix__
+	FILE * in;
+	bool available;
+	struct timeval tv;
+	fd_set fds;
+	tv.tv_sec = 0;
+	tv.tv_usec = 0;
+
+	if (!(in = fopen ("/dev/stdin", "rb")))
+			fatal ("checking standart input");
+	
+
+	FD_ZERO (&fds);
+	FD_SET (fileno (in), &fds);
+	select ((fileno (in) + 1), &fds, NULL, NULL, &tv);
+	available = FD_ISSET (fileno (in), &fds);
+
+	fclose (in);
+
+	return available;
+#else 
+	return false;
+#endif /* __unix__ */
 }
 
 
@@ -59,17 +108,33 @@ int get_spaces(int bread, int cols)
 
 int main(int argc, char *argv[])
 {
-	FILE *file;
+	FILE *file = NULL;
 	unsigned char *buff, *ascii;
 	register unsigned int i;
 	size_t cols;
 	unsigned long int bread, skip, length, address;
 	int c;
+	bool in = false;
 
 	bread = skip = length = address = cols = 0;
 
+	/**
+	 * **@Nota:
+	 * 	Caso seja windows, apenas imprime USAGE
+	 * 	caso contrário, testa se tem algo no buffer
+	 * 	de entrada, se tiver, assume que deve ler de lah
+	 * 	ja que nenhum arquivo ou opção foi provida 
+	 * 	pelo usuário.
+	 */
+	in = available_input ();
 	if (argc < 2)
+	{
+		if (!in)
+			USAGE;
+	} 
+ 	if (!in && (strstr (argv [argc-2], "-")))
 		USAGE;
+
 
 	while ((c = getopt (argc, argv, "c:s:n:vh")) != -1)
 	{
@@ -89,33 +154,39 @@ int main(int argc, char *argv[])
 				USAGE;
 		}
 	}
-
+	
 	if (!cols)
 		cols = 16;
 
-	if (!(file = fopen(argv[argc-1], "rb")))
-		fatal("file not found or not readable");
 
-#ifdef __unix__
 
- 	/*
-	 * Caso o arquivo de entrada seja na verdade uma
-	 * pseudo-tty como /dev/stdin.
+	/**
+	 * **@Nota:
+	 * 	caso seja windows, apenas tenta abrir o arquivo.
+	 * 	Caso contrário, testa se há algo disponivel no buffer de entrada
+	 * 	se sim, assume que deve ler de lá, evitando confundir as argumentos
+	 * 	passados.
 	 */
-	if (isatty (fileno (file))) {
-		for ( ;skip > 0; skip --) {
-			if (fgetc (file) == EOF) 
-				fatal ("skipping too much");
+
+	if (!(file = fopen ((in ? IN : argv[argc-1]), "rb")))
+		fatal("file not found or not readable");
+		
+	if (!in) {
+		fseek (file, 0, SEEK_END);
+		if (!ftell (file)) {
+			fatal ("Could not read the file: file is empty");
 		}
+		rewind (file);
 	}
 
-#else 
+	
+
 
 	/* anda #skip posicoes para frente (-s) */
-	if (fseek(file, skip, SEEK_SET))
-		fatal("unable to seek through file");
-
-#endif /* __unix__ */
+	for ( ;skip > 0; skip --) {
+		if (fgetc (file) == EOF) 
+			fatal ("skipping too much");
+	}
 
 	buff = (unsigned char *) calloc (1, sizeof(unsigned char) * cols);
 	ascii = (unsigned char *) calloc (1, (sizeof(unsigned char) * cols) + 1);
@@ -126,6 +197,7 @@ int main(int argc, char *argv[])
 	do
 	{
 		bread = (int) fread(buff, sizeof(char), cols, file);
+
 		for (i=0; i<bread; i++)
 		{
 			/* imprime o offset */
