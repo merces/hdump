@@ -23,7 +23,20 @@
 #include <unistd.h>
 #include <sys/select.h>
 
+/**
+ * **@Nota:
+ * 	IN é definido aqui dessa forma, 
+ * para evitar o uso de #ifdefs pelo codigo
+ */
+#define IN 		"/dev/stdin"
+
+#else  /* WINDOWS */ 
+
+#define IN 		""
+
 #endif /*__unix__ */
+
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,7 +57,6 @@ void fatal(const char *msg)
 	exit(EXIT_FAILURE);
 }
 
-#ifdef __unix__
 /**
  * **@Nota:
  * 	Testa se há algo no buffer de entrada.
@@ -52,7 +64,7 @@ void fatal(const char *msg)
 bool
 available_input (void)
 {
-
+#ifdef __unix__
 	FILE * in;
 	bool available;
 	struct timeval tv;
@@ -72,9 +84,11 @@ available_input (void)
 	fclose (in);
 
 	return available;
+#else 
+	return false;
+#endif /* __unix__ */
 }
 
-#endif /* __unix__ */
 
 /* This function handles all the output space characters number calculation */
 int get_spaces(int bread, int cols)
@@ -112,21 +126,15 @@ int main(int argc, char *argv[])
 	 * 	ja que nenhum arquivo ou opção foi provida 
 	 * 	pelo usuário.
 	 */
+	in = available_input ();
 	if (argc < 2)
-#ifndef __unix__
-		USAGE;
-#else 
-	{  
-		if (!(file = fopen ("/dev/stdin", "rb")))
-			fatal ("checking standart input");
-		if (!(in = available_input ()))
+	{
+		if (!in)
 			USAGE;
+	} 
+ 	if (!in && (strstr (argv [argc-2], "-")))
+		USAGE;
 
-		if (!(file = fopen ("/dev/stdin", "rb")))
-			fatal ("opening standart input");
-		
-	}
-#endif /* __unix__ */
 
 	while ((c = getopt (argc, argv, "c:s:n:vh")) != -1)
 	{
@@ -159,14 +167,18 @@ int main(int argc, char *argv[])
 	 * 	se sim, assume que deve ler de lá, evitando confundir as argumentos
 	 * 	passados.
 	 */
-	if (!file) {
-#ifndef __unix__
-		if (!(file = fopen (argv[argc-1], "rb")))
-#else 
-		if (!(file = fopen ((available_input () ? "/dev/stdin" : argv[argc-1]), "rb")))
-#endif /* __unix__ */
-			fatal("file not found or not readable");
+
+	if (!(file = fopen ((in ? IN : argv[argc-1]), "rb")))
+		fatal("file not found or not readable");
+		
+	if (!in) {
+		fseek (file, 0, SEEK_END);
+		if (!ftell (file)) {
+			fatal ("Could not read the file: file is empty");
+		}
+		rewind (file);
 	}
+
 	
 
 
