@@ -1,8 +1,7 @@
 # hdump
 ____________________________________________________
 
-#### Fast, simple and portable hexadecimal/ASCII
-#### dumper written in ANSI C.
+#### Fast, simple and portable hexadecimal/ASCII dumper written in ANSI C.
 
 ### 1. Build
     $ make
