@@ -1,5 +1,6 @@
 # hdump
-=====
+
+____________________________________________________
 
 Fast, simple and portable hexadecimal/ASCII
 dumper written in ANSI C.
