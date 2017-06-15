@@ -1,16 +1,16 @@
-hdump
+# hdump
 =====
 
 Fast, simple and portable hexadecimal/ASCII
 dumper written in ANSI C.
 
-###1. Build
+### 1. Build
     $ make
 
-###3. Install
+### 3. Install
     # make install
 
-###3. Usage
+### 3. Usage
     $ hdump [-c columns] [-s skip] [-n length] file
 
     OPTIONS
@@ -22,7 +22,7 @@ dumper written in ANSI C.
 
 Prefixing numbers with '0x' makes hdump use them as hexadecimal.
 
-###4. Examples
+### 4. Examples
 
 Prints the first 16 bytes of /bin/ls file:
 
@@ -33,5 +33,5 @@ Start at byte 0xff and prints a maximum of 32 bytes:
 
     $ hdump -s 0xff -n 32 /bin/ls
 
-###5. Uninstall
+### 5. Uninstall
     # make uninstall
